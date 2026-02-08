@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>AI Soil Health Analyzer</title>
+
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #f4f6f8;
       padding: 40px;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: white;
-      padding: 20px;
+      padding: 25px;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #2e7d32;
     }
 
     input, button {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
     button {
@@ -30,14 +37,26 @@
       color: white;
       border: none;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    pre {
-      background: #111;
-      color: #0f0;
-      padding: 10px;
-      border-radius: 5px;
-      overflow-x: auto;
+    .card {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .explanation {
+      background: #eef7ee;
+      padding: 15px;
+      border-left: 5px solid #2e7d32;
+      margin-top: 15px;
+      white-space: pre-line;
+    }
+
+    ul {
+      padding-left: 18px;
     }
   </style>
 </head>
@@ -54,8 +73,22 @@
 
   <button onclick="analyzeSoil()">Analyze Soil</button>
 
-  <h3>Response</h3>
-  <pre id="output">Waiting...</pre>
+  <div id="result" style="display:none;">
+    <div class="card">
+      <h3>Soil Fertility</h3>
+      <p id="fertility"></p>
+    </div>
+
+    <div class="card">
+      <h3>Nutrient Status</h3>
+      <ul id="nutrients"></ul>
+    </div>
+
+    <div class="explanation">
+      <h3>AI Soil Explanation</h3>
+      <p id="explanationText"></p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -68,28 +101,33 @@ async function analyzeSoil() {
     organic_carbon: Number(document.getElementById("organic_carbon").value)
   };
 
-  document.getElementById("output").textContent = "Loading...";
+  const res = await fetch(
+    "https://agritech-soil-ai.onrender.com/explain-soil",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    }
+  );
 
-  try {
-    const res = await fetch(
-      "https://agritech-soil-ai.onrender.com/explain-soil",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      }
-    );
+  const result = await res.json();
 
-    const result = await res.json();
+  document.getElementById("result").style.display = "block";
 
-    document.getElementById("output").textContent =
-      JSON.stringify(result, null, 2);
+  document.getElementById("fertility").textContent =
+    result.soil_report.soil_fertility;
 
-  } catch (err) {
-    document.getElementById("output").textContent = "Error: " + err;
+  const nutrientList = document.getElementById("nutrients");
+  nutrientList.innerHTML = "";
+
+  for (const key in result.soil_report.nutrient_status) {
+    const li = document.createElement("li");
+    li.textContent = key + ": " + result.soil_report.nutrient_status[key];
+    nutrientList.appendChild(li);
   }
+
+  document.getElementById("explanationText").textContent =
+    result.ai_explanation;
 }
 </script>
 

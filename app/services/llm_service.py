@@ -15,18 +15,34 @@ client = Groq(api_key=GROQ_API_KEY)
 
 def explain_soil_report(soil_report: dict):
     prompt = f"""
-You are an agricultural soil expert.
+    You are an agricultural soil expert.
 
-Explain the soil health report in simple farmer-friendly language.
+    Explain the soil health report in a clean report format.
 
-Rules:
-- Use ONLY the data provided
-- Do NOT invent numbers
-- Keep explanation practical and short
+    Rules:
+    - Do NOT use markdown symbols like ** or #
+    - Use simple headings
+    - Use bullet points
+    - Keep it farmer-friendly
+    - Use ONLY the provided data
 
-Soil Report:
-{json.dumps(soil_report, indent=2)}
-"""
+    Format example:
+
+    Soil Fertility:
+    ...
+
+    Nutrient Status:
+    - Nitrogen: ...
+    - Phosphorus: ...
+    - Potassium: ...
+    - pH Status: ...
+
+    Recommendation:
+    ...
+
+    Soil Report:
+    {json.dumps(soil_report, indent=2)}
+    """
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
