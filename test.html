@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Soil Health Analyzer</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+    }
+
+    button {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🌱 AI Soil Health Analyzer</h2>
+
+  <input id="nitrogen" placeholder="Nitrogen">
+  <input id="phosphorus" placeholder="Phosphorus">
+  <input id="potassium" placeholder="Potassium">
+  <input id="ph" placeholder="pH">
+  <input id="organic_carbon" placeholder="Organic Carbon">
+
+  <button onclick="analyzeSoil()">Analyze Soil</button>
+
+  <h3>Response</h3>
+  <pre id="output">Waiting...</pre>
+</div>
+
+<script>
+async function analyzeSoil() {
+  const data = {
+    nitrogen: Number(document.getElementById("nitrogen").value),
+    phosphorus: Number(document.getElementById("phosphorus").value),
+    potassium: Number(document.getElementById("potassium").value),
+    ph: Number(document.getElementById("ph").value),
+    organic_carbon: Number(document.getElementById("organic_carbon").value)
+  };
+
+  document.getElementById("output").textContent = "Loading...";
+
+  try {
+    const res = await fetch(
+      "https://agritech-soil-ai.onrender.com/explain-soil",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    );
+
+    const result = await res.json();
+
+    document.getElementById("output").textContent =
+      JSON.stringify(result, null, 2);
+
+  } catch (err) {
+    document.getElementById("output").textContent = "Error: " + err;
+  }
+}
+</script>
+
+</body>
+</html>
